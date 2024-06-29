@@ -1,10 +1,12 @@
-import { MeshLambertMaterial, SRGBColorSpace, TextureLoader } from "three";
+import { MeshLambertMaterial, NearestFilter, SRGBColorSpace, TextureLoader } from "three";
 
 const textureLoader = new TextureLoader();
 
 function loadTexture(path: string) {
 	const texture = textureLoader.load(path);
 	texture.colorSpace = SRGBColorSpace;
+	texture.minFilter = NearestFilter;
+	texture.magFilter = NearestFilter;
 	return texture;
 }
 

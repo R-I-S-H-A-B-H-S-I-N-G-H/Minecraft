@@ -1,4 +1,4 @@
-import { AmbientLight, BoxGeometry, DirectionalLight, Mesh, MeshBasicMaterial, MeshLambertMaterial, PerspectiveCamera, Scene, Vector2, WebGLRenderer } from "three";
+import { AmbientLight, BoxGeometry, CameraHelper, DirectionalLight, Mesh, MeshBasicMaterial, MeshLambertMaterial, PerspectiveCamera, Scene, Vector2, WebGLRenderer } from "three";
 
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
@@ -13,6 +13,7 @@ const renderer = new WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(innerWidth, innerHeight);
 renderer.setClearColor("skyBlue");
+renderer.shadowMap.enabled = true;
 
 document.body.appendChild(renderer.domElement);
 
@@ -27,7 +28,7 @@ controls.update();
 
 //scene setup
 const scene = new Scene();
-const world = new World({ width: 10, height: 10 });
+const world = new World({ width: 28, height: 28 });
 world.generate();
 
 scene.add(world);
@@ -56,6 +57,9 @@ function setupLights() {
 	sun.shadow.mapSize = new Vector2(2048, 2048);
 	scene.add(sun);
 	scene.add(sun.target);
+
+	// const shadowHelper = new CameraHelper(sun.shadow.camera);
+	// scene.add(shadowHelper);
 
 	const ambient = new AmbientLight();
 	ambient.intensity = 0.2;

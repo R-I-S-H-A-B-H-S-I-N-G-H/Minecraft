@@ -3,7 +3,6 @@ import { generate2dNoise, generate3dNoise } from "../Utils/Noise";
 import { blocks, resourceBlocks } from "./Blocks";
 
 const geometry = new BoxGeometry();
-const material = new MeshLambertMaterial();
 
 interface Size {
 	width: number;
@@ -71,10 +70,22 @@ export class World extends Group {
 		this.data[x][y][z].instanceId = instanceId;
 	}
 
+	isBlockObscured(x: number, y: number, z: number) {
+		const up = this.getBlock(x, y + 1, z)?.id ?? blocks.empty.id;
+		const down = this.getBlock(x, y - 1, z)?.id ?? blocks.empty.id;
+		const left = this.getBlock(x + 1, y, z)?.id ?? blocks.empty.id;
+		const right = this.getBlock(x - 1, y, z)?.id ?? blocks.empty.id;
+		const forward = this.getBlock(x, y, z + 1)?.id ?? blocks.empty.id;
+		const back = this.getBlock(x, y, z - 1)?.id ?? blocks.empty.id;
+
+		if (up === blocks.empty.id || down === blocks.empty.id || left === blocks.empty.id || right === blocks.empty.id || forward === blocks.empty.id || back === blocks.empty.id) return false;
+		return true;
+	}
+
 	generate() {
 		this.initializeTerrain();
 		this.generateResources();
-		// this.generateTerrain();
+		this.generateTerrain();
 		this.generateMeshes();
 	}
 
@@ -146,9 +157,11 @@ export class World extends Group {
 		Object.values(blocks)
 			.filter((blockType) => blockType.id != blocks.empty.id)
 			.forEach((blockType) => {
-				const mesh = new InstancedMesh(geometry, material, maxBlocks);
+				const mesh = new InstancedMesh(geometry, blockType.material, maxBlocks);
 				mesh.count = 0;
 				mesh.name = blockType.name;
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
 				meshes.set(blockType.id, mesh);
 			});
 
@@ -159,11 +172,7 @@ export class World extends Group {
 				for (let z = 0; z < this.size.width; z++) {
 					const block = this.getBlock(x, y, z);
 
-					if (!block || block.id === 0) continue;
-
-					// const blockType =
-					// Object.values(blocks).find((ele)
-					// => ele.id === block.id);
+					if (!block || block.id === 0 || this.isBlockObscured(x, y, z)) continue;
 
 					const mesh = meshes.get(block.id);
 					if (!mesh) continue;
@@ -179,7 +188,6 @@ export class World extends Group {
 		}
 
 		const val = meshes.values();
-		console.log(val);
 
 		this.add(...val);
 	}
