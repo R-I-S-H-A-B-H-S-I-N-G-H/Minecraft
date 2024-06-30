@@ -31,7 +31,7 @@ export const blocks = {
 		name: "grass",
 		color: "#CCFFCC",
 		material: [
-			new MeshLambertMaterial({ map: textures.grass }),
+			new MeshLambertMaterial({ map: textures.grassSide }),
 			new MeshLambertMaterial({ map: textures.grassSide }),
 			new MeshLambertMaterial({ map: textures.grass }),
 			new MeshLambertMaterial({ map: textures.grass }),
