@@ -42,7 +42,7 @@ function animate() {
 
 function setupLights() {
 	const sun = new DirectionalLight();
-	sun.intensity = 1.5;
+	sun.intensity = 5;
 	sun.position.set(50, 50, 50);
 	sun.castShadow = true;
 
@@ -54,12 +54,12 @@ function setupLights() {
 	sun.shadow.camera.near = 0.1;
 	sun.shadow.camera.far = 200;
 	sun.shadow.bias = -0.0001;
-	sun.shadow.mapSize = new Vector2(2048, 2048);
+	sun.shadow.mapSize = new Vector2(512, 512);
 	scene.add(sun);
 	scene.add(sun.target);
 
-	// const shadowHelper = new CameraHelper(sun.shadow.camera);
-	// scene.add(shadowHelper);
+	const shadowHelper = new CameraHelper(sun.shadow.camera);
+	scene.add(shadowHelper);
 
 	const ambient = new AmbientLight();
 	ambient.intensity = 0.2;
