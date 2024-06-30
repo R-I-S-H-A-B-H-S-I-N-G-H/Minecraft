@@ -1,18 +1,9 @@
-import alea from "alea";
-import { createNoise2D, createNoise3D } from "simplex-noise";
+import { makeNoise2D, makeNoise3D } from "open-simplex-noise";
 
-export function generate2dNoise(x: number, y: number, seed: any = "seed") {
-	// create a new random function based on the seed
-	const prng = alea(seed);
-
-	// use the seeded random function to initialize the noise function
-	return createNoise2D(prng)(x, y);
+export function getNoise2dGen(seed: any = "seed") {
+	return makeNoise2D(seed);
 }
 
-export function generate3dNoise(x: number, y: number, z: number, seed: any = "seed") {
-	// create a new random function based on the seed
-	const prng = alea(seed);
-
-	// use the seeded random function to initialize the noise function
-	return createNoise3D(prng)(x, y, z);
+export function getNoise3dGen(seed: any = "seed") {
+	return makeNoise3D(seed);
 }

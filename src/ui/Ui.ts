@@ -5,8 +5,8 @@ import { blocks, resourceBlocks } from "../WorldGen/Blocks";
 export function createUi(world: World) {
 	const gui = new GUI();
 
-	// gui.add(world.size, "width", 8, 128, 1).name("width");
-	// gui.add(world.size, "height", 8, 128, 1).name("height");
+	gui.add(world.size, "width", 8, 128, 1).name("width");
+	gui.add(world.size, "height", 8, 128, 1).name("height");
 
 	const terrainFolder = gui.addFolder("Terrain");
 	terrainFolder.add(world.params.terrain, "scale", 10, 100).name("Scale");

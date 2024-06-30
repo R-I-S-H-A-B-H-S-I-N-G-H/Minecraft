@@ -1,5 +1,5 @@
-import { AmbientLight, BoxGeometry, Color, DirectionalLight, Group, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, MeshLambertMaterial } from "three";
-import { generate2dNoise, generate3dNoise } from "../Utils/Noise";
+import { BoxGeometry, Group, InstancedMesh, Matrix4 } from "three";
+import { getNoise2dGen, getNoise3dGen } from "../Utils/Noise";
 import { blocks, resourceBlocks } from "./Blocks";
 
 const geometry = new BoxGeometry();
@@ -82,12 +82,11 @@ export class World extends Group {
 		return true;
 	}
 
-	generate() {
+	generate = async () => {
 		this.initializeTerrain();
-		this.generateResources();
-		this.generateTerrain();
+		await Promise.all([this.generateResources(), this.generateTerrain()]);
 		this.generateMeshes();
-	}
+	};
 
 	initializeTerrain(): void {
 		this.data = [];
@@ -108,12 +107,13 @@ export class World extends Group {
 		}
 	}
 
-	generateResources() {
+	generateResources(onComplete: Function = () => {}) {
 		resourceBlocks.forEach((resource) => {
+			const noise3dGenerator = getNoise3dGen(resource.name);
 			for (let x = 0; x < this.size.width; x++) {
 				for (let z = 0; z < this.size.width; z++) {
 					for (let y = 0; y < this.size.height; y++) {
-						const value = generate3dNoise(x / resource.scale.x, y / resource.scale.y, z / resource.scale.z, resource.name);
+						const value = noise3dGenerator(x / resource.scale.x, y / resource.scale.y, z / resource.scale.z);
 						if (value > resource.scarcity) {
 							this.setBlockId(x, y, z, resource.id);
 						}
@@ -121,12 +121,25 @@ export class World extends Group {
 				}
 			}
 		});
+		onComplete();
 	}
 
-	generateTerrain() {
+	generateResourcesAsync() {
+		return new Promise((resolve, reject) => {
+			try {
+				this.generateResources(resolve);
+			} catch (error) {
+				reject(error);
+			}
+		});
+	}
+
+	generateTerrain(onComplete: Function = () => {}) {
+		const noise2dGenerator = getNoise2dGen();
+
 		for (let x = 0; x < this.size.width; x++) {
 			for (let z = 0; z < this.size.width; z++) {
-				const value = generate2dNoise(x / this.params.terrain.scale, z / this.params.terrain.scale);
+				const value = noise2dGenerator(x / this.params.terrain.scale, z / this.params.terrain.scale);
 				const scaledNoise = this.params.terrain.offset + this.params.terrain.magnitude * value;
 				let height = Math.floor(this.size.height * scaledNoise);
 
@@ -146,6 +159,17 @@ export class World extends Group {
 				}
 			}
 		}
+		onComplete();
+	}
+
+	generateTerrainAsync() {
+		return new Promise((resolve, reject) => {
+			try {
+				this.generateTerrain(resolve);
+			} catch (error) {
+				reject(error);
+			}
+		});
 	}
 
 	generateMeshes(): void {
